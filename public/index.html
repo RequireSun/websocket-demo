@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<h1>Hello, World!</h1>
+
+  <div id="chat_content"></div>
+
+  <textarea id="chat_input" cols="30" rows="10"></textarea>
+
+  <button id="chat_submit">发送</button>
+
+	<script>
+    const $chatContent = document.getElementById('chat_content');
+    const $chatInput = document.getElementById('chat_input');
+    const $chatSubmit = document.getElementById('chat_submit');
+
+		if ('WebSocket' in window) {
+     	console.log('您的浏览器支持 WebSocket!');
+     
+     	// 打开一个 web socket
+     	window.ws = new WebSocket(`ws://${window.location.host}/chatroom`);
+
+     	window.ws.addEventListener('open', () => {
+      	// Web Socket 已连接上，使用 send() 方法发送数据
+        console.log('websocket 已连接');
+     	});
+
+     	window.ws.addEventListener('message', (evt) => {
+      	var received_msg = evt.data;
+      	console.log('数据已接收...', received_msg);
+
+        const $p = document.createElement('p');
+        $p.innerText = evt.data;
+
+        $chatContent.appendChild($p);
+     	});
+
+     	window.ws.addEventListener('close', () => { 
+      	// 关闭 websocket
+      	console.log('连接已关闭...'); 
+   	  });
+    } else {
+     	// 浏览器不支持 WebSocket
+     	console.error('您的浏览器不支持 WebSocket!');
+    }
+
+    $chatSubmit.addEventListener('click', () => {
+      if (WebSocket.OPEN === window.ws.readyState) {
+        window.ws.send($chatInput.value);
+        $chatInput.value = '';
+      }
+    })
+	</script>
+</body>
+</html>
